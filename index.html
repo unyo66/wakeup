@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wake Up!</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&display=swap');
+        .wrap
+        {
+        }
+        .title
+        {
+            padding-top: 10vw;
+            text-align: center;
+            font-size: 7vw;
+        }
+        .click_box, .chart_box, .text_box
+        {
+            width: 70vw;
+            height: 70vw;
+            position: absolute;
+            top: 30vw;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 1px solid;
+        }
+        .text_box
+        {
+            opacity: 0;
+        }
+        .click_box
+        {
+            opacity: 0;
+            z-index: 98;
+        }
+        .chart 
+        {
+            display:inline-block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .ch1 {background: conic-gradient(#8b22ff 0% 25%, transparent 25% 100%);}
+        .ch2 {background: conic-gradient(transparent 0% 25%, #ffc33b 25% 56%, transparent 56% 100%);}
+        .ch3 {background: conic-gradient(transparent 0% 56%, #21f3d6 56% 100%);}
+
+        .ch_center
+        {
+            position:absolute;
+            width: 70%; 
+            height: 70%;
+            background :#fff;
+            border-radius: 50%;
+            top: 50%;
+            left:50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .text_box
+        {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        .name, .ch_center
+        {
+            font-weight: 800;
+            font-size: 5vw;
+        }
+        .money_sum, .money_once
+        {
+            font-size: 3vw;
+        }
+        .button_box 
+        {
+            position: absolute;
+            top: 110vw;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        button
+        {
+            width: 15vw;
+            height: 6vw;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+    <div class="wrap">
+        <div class="title">오늘은 누구?</div>
+        <div class="click_box"></div>
+        <div class="chart_box">
+            <div class="chart ch1"></div>
+            <div class="chart ch2"></div>
+            <div class="chart ch3"></div>
+            <div class="ch_center">251,000</div>
+        </div>
+        <div class="text_box">
+            <div class="person p1">
+                <div class="name"></div>
+                <div class="money_sum"></div>
+                <div class="money_once"></div>
+            </div>
+            <div class="person p2">
+                <div class="name"></div>
+                <div class="money_sum"></div>
+                <div class="money_once"></div>
+            </div>
+            <div class="person p3">
+                <div class="name"></div>
+                <div class="money_sum"></div>
+                <div class="money_once"></div>
+            </div>
+        </div>
+        <div class="button_box">
+            <button></button>
+            <button></button>
+            <button></button>
+        </div>
+    </div>
+    <script>
+        let count = [11, 12, 17]; // db
+        let name = ["손호성", "신승환", "이고훈"]; //db
+        let color = ["#8b22ff", "#ffc33b", "#21f3d6"];
+        let sum = new Array(count.length);
+        let total = 0;
+        for (let i = 0; i < count.length; i++) {
+            //인당 합계 구하기
+            sum[i] = 0;
+            for (let j = 1; j <= count[i]; j++) {
+                if (j % 10 == 0 && j != 0) {
+                    sum[i] += 1000 * (Math.floor(j / 10));
+                }
+                else {
+                    sum[i] += 1000 * (Math.floor(j / 10) + 1);
+                }
+            }
+            //총 합계 구하기
+            total += sum[i];
+            //이름에 색 텍스트 넣기
+            document.getElementsByClassName("name")[i].style = "color : " + color[i];
+            document.getElementsByClassName("name")[i].innerText = name[i];
+            //금액 넣기
+            document.getElementsByClassName("money_once")[i].innerText = "회당 벌금 : " + (1000 * (Math.floor(count[i] / 10) + 1)).toLocaleString("ko-KR") + "원 (승급까지 " + (10 - count[i] % 10) + "회)";
+            document.getElementsByClassName("money_sum")[i].innerText = "누적 벌금 : " + sum[i].toLocaleString("ko-KR") + "원 (누적 " + count[i] + "회)";
+            document.getElementsByTagName("button")[i].innerText = name[i];
+        }
+
+        //기여 비율 구하기
+        let rate = new Array(count.length);
+        for (let i = 0; i < count.length; i++) {
+            rate[i] = sum[i] / total * 100;
+            for (let j = 0; j < i; j++) {
+                rate[i] += rate[j];
+            }
+            rate[i] = Math.round(rate[i]);
+            if (count[i + 1] == null) {
+                rate[i] = 100;
+            }
+        }
+        //차트에 들어갈 스타일에 넣을 스트링 배열
+        let chart_style = new Array(count.length);
+        for (let i = 0; i < count.length; i++) {
+            //스트링배열에 +로 담을거라 초기화 안하면 undefined 들어감
+            chart_style[i] = "";
+            for (let j = 0; j < count.length; j++) {
+                //스타일 3개 * 3종
+                chart_style[i] += (i == j ? color[i] + " " : "transparent ") + (j == 0 ? 0 : rate[j - 1]) + "% " + rate[j] + "%";
+                if (count[j + 1] != null) {
+                    chart_style[i] += ", ";
+                }
+            }
+            document.getElementsByClassName("chart")[i].style = "background: conic-gradient(" + chart_style[i] + ")"
+        }
+        //토탈 금액 표시
+        $(".ch_center").text(total.toLocaleString("ko-KR"));
+        let op_index = 1;
+        $(".click_box").click(function(){
+            if (op_index == 1) {
+                $(".chart_box").animate({
+                    opacity: 0
+                }, 150)
+                $(".text_box").animate({
+                    opacity: 1
+                }, 150)
+            }
+            else {
+                $(".text_box").animate({
+                    opacity: 0
+                }, 150)
+                $(".chart_box").animate({
+                    opacity: 1
+                }, 150)
+            }
+            op_index *= -1;
+        })
+        let idx = [1, 2, 3];
+        let dt = new Date();
+            let tmpDate = dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate();
+            let tmpInput = {"user_idx":idx[1], "event_date":tmpDate}
+            console.log(tmpInput);
+    </script>
+</body>
+</html>
