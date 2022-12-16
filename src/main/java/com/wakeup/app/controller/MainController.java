@@ -63,4 +63,10 @@ public class MainController {
         m.addAttribute("count", count);
         return "index";
     }
+
+    @PostMapping({"/sendEvent"})
+    @ResponseBody
+    public int sendEvent(@RequestBody Map map) {
+        return wakeupDao.insertEvent(map);
+    }
 }

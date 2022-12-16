@@ -140,6 +140,8 @@
 <script>
     let idx = `${setting_user_idx}`.split(",");
     let name = `${setting_user_name}`.split(",");
+    let recordIdx = `${user_idx}`.split(",");
+    let recordDate = `${event_date}`.split(",");
     let strCount = `${count}`.split(",");
     console.log(idx);
     let count = new Array(idx.length);
@@ -147,102 +149,137 @@
         count[i] = Number(strCount[i]);
     }
     let color = `${setting_user_color}`.split(",");
-    let sum = new Array(count.length);
-    let total = 0;
-    for (let i = 0; i < count.length; i++) {
-        //인당 합계 구하기
-        sum[i] = 0;
-        for (let j = 1; j <= count[i]; j++) {
-            if (j % 10 == 0 && j != 0) {
-                sum[i] += 1000 * (Math.floor(j / 10));
+
+
+    //////////////////////화면 초기 세팅 메서드//////////////////////////////////////////////////////////////////
+    function setScreen() {
+        for (let i = 0; i < count.length; i++) {
+            //이름에 색 텍스트 넣기
+            document.getElementsByClassName("name")[i].style = "color : " + color[i];
+            document.getElementsByClassName("name")[i].innerText = name[i];
+            //버튼 달기
+            document.getElementsByClassName("button_box")[0].innerHTML += `<button>` + name[i] + `</button>`;
+        }
+        let op_index = 1;
+        $(".click_box").click(function(){
+            if (op_index == 1) {
+                $(".chart_box").animate({
+                    opacity: 0
+                }, 200)
+                $(".text_box").animate({
+                    opacity: 1
+                }, 200)
             }
             else {
-                sum[i] += 1000 * (Math.floor(j / 10) + 1);
+                $(".text_box").animate({
+                    opacity: 0
+                }, 200)
+                $(".chart_box").animate({
+                    opacity: 1
+                }, 200)
+            }
+            op_index *= -1;
+        })
+    }
+    setScreen();
+    //////////////////////화면 적용 메서드//////////////////////////////////////////////////////////////////
+    function applyScreen() {
+        let sum = new Array(count.length);
+        let total = 0;
+        let tmpButton="";
+        for (let i = 0; i < count.length; i++) {
+            //인당 합계 구하기
+            sum[i] = 0;
+            for (let j = 1; j <= count[i]; j++) {
+                if (j % 10 == 0 && j != 0) {
+                    sum[i] += 1000 * (Math.floor(j / 10));
+                }
+                else {
+                    sum[i] += 1000 * (Math.floor(j / 10) + 1);
+                }
+            }
+            //총 합계 구하기
+            total += sum[i];
+            //금액 넣기
+            document.getElementsByClassName("money_once")[i].innerText = "회당 벌금 : " + (1000 * (Math.floor(count[i] / 10) + 1)).toLocaleString("ko-KR") + "원 (승급까지 " + (10 - count[i] % 10) + "회)";
+            document.getElementsByClassName("money_sum")[i].innerText = "누적 벌금 : " + sum[i].toLocaleString("ko-KR") + "원 (누적 " + count[i] + "회)";
+        }
+        //기여 비율 구하기
+        let rate = new Array(count.length);
+        for (let i = 0; i < count.length; i++) {
+            rate[i] = sum[i] / total * 100;
+            for (let j = 0; j < i; j++) {
+                rate[i] += rate[j];
+            }
+            rate[i] = Math.round(rate[i]);
+            if (count[i + 1] == null) {
+                rate[i] = 100;
             }
         }
-        //총 합계 구하기
-        total += sum[i];
-        //이름에 색 텍스트 넣기
-        document.getElementsByClassName("name")[i].style = "color : " + color[i];
-        document.getElementsByClassName("name")[i].innerText = name[i];
-        //금액 넣기
-        document.getElementsByClassName("money_once")[i].innerText = "회당 벌금 : " + (1000 * (Math.floor(count[i] / 10) + 1)).toLocaleString("ko-KR") + "원 (승급까지 " + (10 - count[i] % 10) + "회)";
-        document.getElementsByClassName("money_sum")[i].innerText = "누적 벌금 : " + sum[i].toLocaleString("ko-KR") + "원 (누적 " + count[i] + "회)";
-        document.getElementsByClassName("button_box")[0].innerHTML += `<button>` + name[i] + `</button>`;
+        //차트 스타일 바꾸기
+        let chart_style = new Array(count.length);
+        for (let i = 0; i < count.length; i++) {
+            //스트링배열에 +로 담을거라 초기화 안하면 undefined 들어감
+            chart_style[i] = "";
+            for (let j = 0; j < count.length; j++) {
+                //스타일 3개 * 3종
+                chart_style[i] += (i == j ? color[i] + " " : "transparent ") + (j == 0 ? 0 : rate[j - 1]) + "% " + rate[j] + "%";
+                if (count[j + 1] != null) {
+                    chart_style[i] += ", ";
+                }
+            }
+            document.getElementsByClassName("chart")[i].style = "background: conic-gradient(" + chart_style[i] + ")"
+        }
+        //토탈 금액 표시
+        $(".ch_center").text(total.toLocaleString("ko-KR"));
     }
+    applyScreen();
 
     //버튼에 ajax 달기
     let btn = $("button");
     for (let i = 0; i < idx.length; i++) {
+        let dateFlag = 0;
         btn.eq(i).click(function (){
             let dt = new Date();
             let tmpDate = dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate();
-            let tmpInput = {"user_idx":idx[i], "event_date":tmpDate}
-           $.ajax({
-               type:'POST',
-               url:'/sendEvent',
-               headers : { "content-type": "application/json"},
-               dataType : 'text',
-               data : JSON.stringify(tmpInput),
-               success : function(result){
-                   console.log(result);
-               },
-               error   : function(){
-                   alert("error")
-               }
+            for (let j = 0; j < recordDate.length; j++) {
+                console.log("tmpDate : " + tmpDate);
+                console.log("recordDate : " + recordDate[j]);
+                console.log("inputIdx : " + idx[i]);
+                console.log("recordIdx : " + recordIdx[j]);
+                if (tmpDate == recordDate[j]) {
+                    if (idx[i] == recordIdx[j]) {
+                        dateFlag++;
+                        alert("클릭은 하루에 한 번");
+                        break;
+                    }
+                }
+                console.log("flag : " + dateFlag);
+            }
+            if (dateFlag == 0) {
+                let tmpInput = {"user_idx":idx[i], "event_date":tmpDate};
+               $.ajax({
+                   type:'POST',
+                   url:'/sendEvent',
+                   headers : { "content-type": "application/json"},
+                   dataType : 'text',
+                   data : JSON.stringify(tmpInput),
+                   success : function(result){
+                       console.log(result);
+                       recordDate.push(tmpDate);
+                       recordIdx.push(idx[i]);
+                       count[i] += 1;
+                       console.log(count[i]);
+                       applyScreen();
+                   },
+                   error   : function(){
+                       alert("error")
+                   }
 
-           })
+               }); //ajax
+            }
         });
     }
-
-    //기여 비율 구하기
-    let rate = new Array(count.length);
-    for (let i = 0; i < count.length; i++) {
-        rate[i] = sum[i] / total * 100;
-        for (let j = 0; j < i; j++) {
-            rate[i] += rate[j];
-        }
-        rate[i] = Math.round(rate[i]);
-        if (count[i + 1] == null) {
-            rate[i] = 100;
-        }
-    }
-    //차트에 들어갈 스타일에 넣을 스트링 배열
-    let chart_style = new Array(count.length);
-    for (let i = 0; i < count.length; i++) {
-        //스트링배열에 +로 담을거라 초기화 안하면 undefined 들어감
-        chart_style[i] = "";
-        for (let j = 0; j < count.length; j++) {
-            //스타일 3개 * 3종
-            chart_style[i] += (i == j ? color[i] + " " : "transparent ") + (j == 0 ? 0 : rate[j - 1]) + "% " + rate[j] + "%";
-            if (count[j + 1] != null) {
-                chart_style[i] += ", ";
-            }
-        }
-        document.getElementsByClassName("chart")[i].style = "background: conic-gradient(" + chart_style[i] + ")"
-    }
-    //토탈 금액 표시
-    $(".ch_center").text(total.toLocaleString("ko-KR"));
-    let op_index = 1;
-    $(".click_box").click(function(){
-        if (op_index == 1) {
-            $(".chart_box").animate({
-                opacity: 0
-            }, 200)
-            $(".text_box").animate({
-                opacity: 1
-            }, 200)
-        }
-        else {
-            $(".text_box").animate({
-                opacity: 0
-            }, 200)
-            $(".chart_box").animate({
-                opacity: 1
-            }, 200)
-        }
-        op_index *= -1;
-    })
 </script>
 </body>
 

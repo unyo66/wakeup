@@ -28,12 +28,13 @@
         }
         .display
         {
-            opacity: 0;
+            /* opacity: 0; */
+            display: none;
         }
         .admin_record_box, .admin_setting_box
         {
             width: 70vw;
-            height: 100vw;
+            max-height: 100vw;
             position: absolute;
             top: 30vw;
             left: 50%;
@@ -57,11 +58,10 @@
         {
             width: 38%;
         }
-        .setting_user_box
+        .setting_box
         {
             width: 99%;
             margin: 0 auto;
-            border-bottom: 1px solid #eee;
         }
         .user_box
         {
@@ -70,17 +70,10 @@
             border-bottom: 1px solid #eee;
             display: flex;
             align-items: center;
-        }
-        .user
-        {
-            width: 20%;
-            border-right: 1px solid #eee;
-            box-sizing: border-box;
-            text-align: center;
+            justify-content: space-evenly;
         }
         .set_user, .delete_user
         {
-            width: 28%;
             border-right: 1px solid #eee;
             box-sizing: border-box;
             text-align: center;
@@ -89,9 +82,28 @@
         {
             width: 24%;
             overflow: hidden;
-            border-right: 5px solid #fff;
             box-sizing: border-box;
             margin-right: 1px;
+        }
+
+        .set_money, .set_count, .set_init
+        {
+            height: 7vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5vw;
+            border-bottom: 1px solid #eee;
+        }
+        .set_init
+        {
+            color: #f00;
+        }
+        #money, #count
+        {
+            width: 20%;
+            outline: none;
+            border: none;
         }
     </style>
 </head>
@@ -102,17 +114,31 @@
         <div class="admin_record_box">
         </div>
         <div class="admin_setting_box display">
-            <div class="setting_user_box">
+            <div class="setting_box">
                 <div class="user_box">
-                    <div class="user">이고훈</div>
-                    <div class="set_user">이름 변경</div>
-                    <div class="delete_user">유저 삭제</div>
+                    <div class="set_user">이고훈</div>
                     <div class="set_user_color"></div>
+                    <div class="delete_user">삭제</div>
+                    <div class="add_user">추가</div>
                 </div>
             </div>
         </div>
         <div class="admin_setting_box display">
-            초기화
+            <div class="setting_box">
+                <div class="set_money">
+                    <div style="width: 50%;">회당 벌금</div>
+                    <input type="text" name="" id="money" value="1000">
+                    <div class="submit">확인</div>
+                </div>
+                <div class="set_count">
+                    <div  style="width: 50%;">레벨업 필요 횟수</div>
+                    <input type="text" name="" id="count" value="10">
+                    <div class="submit">확인</div>
+                </div>
+                <div class="set_init">
+                    초기화
+                </div>
+            </div>
         </div>
     </div>
     <script>
@@ -135,7 +161,19 @@
                 n = 0;
             }
         }
+        
+        //////////////////////////////그간의 기록들//////////////////////////////
+        let dateArr = ["2022-12-12","2022-12-12","2022-12-12","2022-12-12","2022-12-12"];
+        let nameArr = ["이고훈","이고훈","이고훈","이고훈","이고훈"];
+        let tmpRecord = "";
+        for (let i = 0; i < dateArr.length; i++) {
+            tmpRecord += `<div class="record_box">
+                            <div class="record_date">${dateArr[i]}</div>
+                            <div class="record_name">${nameArr[i]}</div>
+                        </div>`;
+        }
         $(".admin_record_box").html(tmpRecord);
+        //////////////////////////////설정1//////////////////////////////
         $(".set_user_color").html(`<input id="color-picker" value='#276cb8' />`);
         $('#color-picker').spectrum({
             type: "text"
@@ -161,17 +199,6 @@
             }
             changeDisplay();
         })
-        //////////////////////////////그간의 기록들//////////////////////////////
-        let dateArr = ["2022-12-12","2022-12-12","2022-12-12","2022-12-12","2022-12-12"];
-        let nameArr = ["이고훈","이고훈","이고훈","이고훈","이고훈"];
-        let tmpRecord = "";
-        for (let i = 0; i < dateArr.length; i++) {
-            tmpRecord += `<div class="record_box">
-                            <div class="record_date">${dateArr[i]}</div>
-                            <div class="record_name">${nameArr[i]}</div>
-                        </div>`;
-        }
-        //////////////////////////////설정1//////////////////////////////
     </script>
 </body>
 </html>
