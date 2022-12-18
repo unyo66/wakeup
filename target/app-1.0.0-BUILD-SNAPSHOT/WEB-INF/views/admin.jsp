@@ -19,6 +19,11 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&display=swap');
+        .wrap
+        {
+            position: relative;
+            margin-top: 15vw;
+        }
         .title
         {
             padding-top: 10vw;
@@ -30,7 +35,7 @@
             width: 8vw;
             height: 8vw;
             position: absolute;
-            top: 6.8vw;
+            top: 5vw;
             right: 17vw;
             padding: 5vw;
             /* transform: rotateZ(170deg); */
@@ -75,26 +80,35 @@
         .user_box
         {
             width: 100%;
-            height: 7vw;
+            height: 10vw;
             border-bottom: 1px solid #eee;
             display: flex;
             align-items: center;
             justify-content: space-evenly;
         }
-        .set_user, .delete_user
+        .set_user
         {
-            border-right: 1px solid #eee;
-            box-sizing: border-box;
-            text-align: center;
+            width: 30%;
+            font-size: 16px;
+            outline: none;
+            border: none;
         }
         .set_user_color
         {
-            width: 24%;
+            width: 30%;
             overflow: hidden;
             box-sizing: border-box;
             margin-right: 1px;
+            border-right: 1px solid;
         }
-
+        .add_user
+        {
+            width: 7vw;
+            height: 7vw;
+            text-align: center;
+            line-height: 7vw;
+            float: right;
+        }
         .set_money, .set_count, .set_init
         {
             height: 7vw;
@@ -118,31 +132,28 @@
 </head>
 <body>
 <div class="wrap">
-    <div class="title">그간의 기록들</div>
-    <img src="./setting.png" alt="" class="setting_button">
+    <div class="title">기록</div>
+    <img src="../img/setting.png" alt="" class="setting_button">
     <div class="admin_record_box">
     </div>
     <div class="admin_setting_box display">
         <div class="setting_box">
             <div class="user_box">
-                <div class="set_user">이고훈</div>
-                <div class="set_user_color"></div>
-                <div class="delete_user">삭제</div>
-                <div class="add_user">추가</div>
             </div>
         </div>
+<%--        <div class="add_user">+</div>--%>
     </div>
     <div class="admin_setting_box display">
         <div class="setting_box">
             <div class="set_money">
                 <div style="width: 50%;">회당 벌금</div>
-                <input type="text" name="" id="money" value="1000">
-                <div class="submit">확인</div>
+                <input type="text" name="" id="money" value="${setting_money}">
+                <div class="setting_submit">확인</div>
             </div>
             <div class="set_count">
                 <div  style="width: 50%;">레벨업 필요 횟수</div>
-                <input type="text" name="" id="count" value="10">
-                <div class="submit">확인</div>
+                <input type="text" name="" id="count" value="${setting_count}">
+                <div class="setting_submit">확인</div>
             </div>
             <div class="set_init">
                 초기화
@@ -151,6 +162,29 @@
     </div>
 </div>
 <script>
+    let idx = `${setting_user_idx}`.split(",");
+    let name = `${setting_user_name}`.split(",");
+    let recordIdx = `${user_idx}`.split(",");
+    let recordDate = `${event_date}`.split(",");
+    let strCount = `${count}`.split(",");
+    let recordName = new Array(idx.length);
+    for (let i = 0; i < recordIdx.length; i++) {
+        for (let j = 0; j < idx.length; j++) {
+            if (recordIdx[i] == idx [j]) {
+                recordName[i] = name[j];
+            }
+        }
+    }
+    console.log(recordName);
+    console.log(idx);
+    let count = new Array(idx.length);
+    for (let i = 0; i < idx.length; i++) {
+        count[i] = Number(strCount[i]);
+    }
+    let color = `${setting_user_color}`.split(",");
+    let money = Number(`${setting_money}`);
+    let levelup_count = Number(`${setting_count}`);
+    console.log(money + " " +  levelup_count)
     //////////////////////////////화면 전환//////////////////////////////
     let n = 0;
     function changeDisplay() {
@@ -172,41 +206,134 @@
     }
 
     //////////////////////////////그간의 기록들//////////////////////////////
-    let dateArr = ["2022-12-12","2022-12-12","2022-12-12","2022-12-12","2022-12-12"];
-    let nameArr = ["이고훈","이고훈","이고훈","이고훈","이고훈"];
     let tmpRecord = "";
-    for (let i = 0; i < dateArr.length; i++) {
+    for (let i = 0; i < recordDate.length; i++) {
         tmpRecord += `<div class="record_box">
-                            <div class="record_date">${dateArr[i]}</div>
-                            <div class="record_name">${nameArr[i]}</div>
+                            <div class="record_date">` + recordDate[i] + `</div>
+                            <div class="record_name">` + recordName[i] + `</div>
                         </div>`;
     }
     $(".admin_record_box").html(tmpRecord);
+    for (let i = 0; i < recordDate.length; i++) {
+        for (let j = 0; j < color.length; j++) {
+            if (recordIdx[i] == idx[j]) {
+                $(".record_name").eq(i).css({
+                    color: color[j]
+                })
+                $(".record_date").eq(i).css({
+                    color: color[j]
+                })
+            }
+        }
+    }
     //////////////////////////////설정1//////////////////////////////
-    $(".set_user_color").html(`<input id="color-picker" value='#276cb8' />`);
-    $('#color-picker').spectrum({
-        type: "text"
-    });
+    function set_user(add){
+        let tmpUser = "";
+        for (let i = 0; i < idx.length; i++) {
+            tmpUser += `<div class="user_box">
+                    <input type="text" name="" class="set_user user` + idx[i] + `" value=` + name[i] + `>
+                    <div class="set_user_color">
+                        <input class="color-picker" value=` + color[i] + ` />
+                    </div>
+                    <div class="submit">확인</div>
+                </div>`;
+        }
+        if (add) {
+            tmpUser += `<div class="user_box">
+                    <input type="text" name="" class="set_user user` + (idx.length + 1) + `" value="" placeholder="새로운 유저"/>
+                    <div class="set_user_color">
+                        <input class="color-picker" value="#eeeeee"/>
+                    </div>
+                    <div class="submit">확인</div>
+                </div>`;
+        }
+        $(".setting_box").eq(0).html(tmpUser);
+        $('.color-picker').spectrum({
+            type: "text"
+        });
+        for (let i = 0; i < $(".user_box").length; i++) {
+            $(".user_box").eq(i).children(".submit").click(function () {
+                let tmpIdx = $(this).parent().children(".set_user").attr("class")[13];
+                let tmpName = $(this).parent().children(".set_user").val();
+                let tmpColor = $(this).parent().find(".color-picker").val();
+                let tmpSendUser = {"user_idx": tmpIdx, "user_name": tmpName, "user_color": tmpColor};
+                console.log(tmpSendUser);
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/sendUser',
+                    headers: {"content-type": "application/json"},
+                    dataType: 'text',
+                    data: JSON.stringify(tmpSendUser),
+                    success: function (result) {
+                        alert(name[i] + " ➞ " + tmpName + "\n" + color[i] + " ➞ " + tmpColor)
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                }); //ajax
+            })
+        }
+    }
+    set_user(false);
+    $(".add_user").click(function () {
+        set_user(true);
+    })
+//////////////////////////////설정2//////////////////////////////
+    function sendSetting(map) {
+        $.ajax({
+            type:'POST',
+            url:'/sendSetting',
+            headers : { "content-type": "application/json"},
+            dataType : 'text',
+            data : JSON.stringify(map),
+            success : function(result){
+                alert("변경 완료");
+            },
+            error   : function(){
+                alert("error")
+            }
+        }); //ajax
+    }
+        $(".setting_submit").click(function () {
+            if (confirm("설정 변경?")) {
+                let tmpMoney = $("#money").val();
+                let tmpCount = $("#count").val();
+                let tmpSendSetting = {"money_per":tmpMoney, "levelup_count":tmpCount};
+                sendSetting(tmpSendSetting);
+            }
+        })
+
+
+
+
+
+
+
     $(".setting_button").click(function(){
         if (n == 0) {
             $(this).animate({
                 rotate: "90deg"
             }, 500)
-            $(".title").text("설정1");
+            $(".title").text("유저 설정");
         }
         else if (n == 1) {
             $(this).animate({
                 rotate: "180deg"
             }, 500)
-            $(".title").text("설정2");
+            $(".title").text("기타 설정");
         }
         else if (n == 2) {
             $(this).animate({
                 rotate: "0deg"
             }, 700)
-            $(".title").text("그간의 기록들");
+            $(".title").text("기록");
         }
         changeDisplay();
+    })
+    $(".title").click(function (){
+        location.href = "/";
     })
 </script>
 </body>

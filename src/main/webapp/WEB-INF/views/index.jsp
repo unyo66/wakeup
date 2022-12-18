@@ -21,6 +21,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&display=swap');
         .wrap
         {
+            position: relative;
+            margin-top: 15vw;
         }
         .title
         {
@@ -151,6 +153,9 @@
     let color = `${setting_user_color}`.split(",");
 
 
+    let money = Number(`${setting_money}`);
+    let levelup_count = Number(`${setting_count}`);
+
     //////////////////////화면 초기 세팅 메서드//////////////////////////////////////////////////////////////////
     function setScreen() {
         for (let i = 0; i < count.length; i++) {
@@ -186,22 +191,21 @@
     function applyScreen() {
         let sum = new Array(count.length);
         let total = 0;
-        let tmpButton="";
         for (let i = 0; i < count.length; i++) {
             //인당 합계 구하기
             sum[i] = 0;
             for (let j = 1; j <= count[i]; j++) {
-                if (j % 10 == 0 && j != 0) {
-                    sum[i] += 1000 * (Math.floor(j / 10));
+                if (j % levelup_count == 0 && j != 0) {
+                    sum[i] += money * (Math.floor(j / levelup_count));
                 }
                 else {
-                    sum[i] += 1000 * (Math.floor(j / 10) + 1);
+                    sum[i] += money * (Math.floor(j / levelup_count) + 1);
                 }
             }
             //총 합계 구하기
             total += sum[i];
             //금액 넣기
-            document.getElementsByClassName("money_once")[i].innerText = "회당 벌금 : " + (1000 * (Math.floor(count[i] / 10) + 1)).toLocaleString("ko-KR") + "원 (승급까지 " + (10 - count[i] % 10) + "회)";
+            document.getElementsByClassName("money_once")[i].innerText = "회당 벌금 : " + (money * (Math.floor(count[i] / levelup_count) + 1)).toLocaleString("ko-KR") + "원 (승급까지 " + (levelup_count - count[i] % levelup_count) + "회)";
             document.getElementsByClassName("money_sum")[i].innerText = "누적 벌금 : " + sum[i].toLocaleString("ko-KR") + "원 (누적 " + count[i] + "회)";
         }
         //기여 비율 구하기
@@ -243,10 +247,10 @@
             let dt = new Date();
             let tmpDate = dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate();
             for (let j = 0; j < recordDate.length; j++) {
-                console.log("tmpDate : " + tmpDate);
-                console.log("recordDate : " + recordDate[j]);
-                console.log("inputIdx : " + idx[i]);
-                console.log("recordIdx : " + recordIdx[j]);
+                // console.log("tmpDate : " + tmpDate);
+                // console.log("recordDate : " + recordDate[j]);
+                // console.log("inputIdx : " + idx[i]);
+                // console.log("recordIdx : " + recordIdx[j]);
                 if (tmpDate == recordDate[j]) {
                     if (idx[i] == recordIdx[j]) {
                         dateFlag++;
@@ -254,7 +258,7 @@
                         break;
                     }
                 }
-                console.log("flag : " + dateFlag);
+                // console.log("flag : " + dateFlag);
             }
             if (dateFlag == 0) {
                 let tmpInput = {"user_idx":idx[i], "event_date":tmpDate};
@@ -265,21 +269,23 @@
                    dataType : 'text',
                    data : JSON.stringify(tmpInput),
                    success : function(result){
-                       console.log(result);
+                       // console.log(result);
                        recordDate.push(tmpDate);
                        recordIdx.push(idx[i]);
                        count[i] += 1;
-                       console.log(count[i]);
+                       // console.log(count[i]);
                        applyScreen();
                    },
                    error   : function(){
                        alert("error")
                    }
-
                }); //ajax
             }
         });
     }
+    $(".title").click(function (){
+        location.href = "/admin";
+    })
 </script>
 </body>
 

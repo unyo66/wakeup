@@ -6,10 +6,19 @@
     <select id="selectRecord" resultType="WakeupDto">
         SELECT user_idx, event_date FROM record;
     </select>
-    <select id="selectSetting" resultType="WakeupDto">
+    <select id="selectUser" resultType="WakeupDto">
         SELECT user_idx, user_name, user_color FROM user;
+    </select>
+    <select id="selectSetting" resultType="WakeupDto">
+        SELECT money_per, levelup_count FROM setting;
     </select>
     <insert id="insertRecord" parameterType="map">
         INSERT INTO record (user_idx, event_date) VALUES (#{user_idx}, #{event_date});
     </insert>
+    <update id="updateUser" parameterType="map">
+        UPDATE user SET user_name = #{user_name}, user_color = #{user_color} WHERE user_idx = #{user_idx};
+    </update>
+    <update id="updateSetting" parameterType="map">
+        UPDATE setting SET money_per = #{money_per}, levelup_count = #{levelup_count};
+    </update>
 </mapper>

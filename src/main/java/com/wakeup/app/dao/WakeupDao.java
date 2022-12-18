@@ -17,12 +17,22 @@ public class WakeupDao {
     public List<WakeupDto> selectRecord() {
         return session.selectList(namespace+"selectRecord");
     }
+    public List<WakeupDto> selectUser() {
+        return session.selectList(namespace+"selectUser");
+    }
     public List<WakeupDto> selectSetting() {
         return session.selectList(namespace+"selectSetting");
     }
 
     public int insertEvent(Map map) {
         return session.insert(namespace+"insertRecord", map);
+    }
+    public int updateUser(Map map) {
+        return session.update(namespace+"updateUser", map);
+    }
+
+    public int updateSetting(Map map) {
+        return session.update(namespace+"updateSetting", map);
     }
 
 }

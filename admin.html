@@ -72,20 +72,20 @@
             align-items: center;
             justify-content: space-evenly;
         }
-        .set_user, .delete_user
+        .set_user
         {
-            border-right: 1px solid #eee;
-            box-sizing: border-box;
-            text-align: center;
+            width: 30%;
+            font-size: 16px;
+            outline: none;
+            border: none;
         }
         .set_user_color
         {
-            width: 24%;
+            width: 30%;
             overflow: hidden;
             box-sizing: border-box;
             margin-right: 1px;
         }
-
         .set_money, .set_count, .set_init
         {
             height: 7vw;
@@ -94,6 +94,15 @@
             align-items: center;
             padding: 0 5vw;
             border-bottom: 1px solid #eee;
+        }
+        .add_user
+        {
+            width: 7vw;
+            height: 7vw;
+            text-align: center;
+            line-height: 7vw;
+            /* padding: 1vw; */
+            float: right;
         }
         .set_init
         {
@@ -116,12 +125,12 @@
         <div class="admin_setting_box display">
             <div class="setting_box">
                 <div class="user_box">
-                    <div class="set_user">이고훈</div>
+                    <input type="text" name="" class="set_user" value="이고훈">
                     <div class="set_user_color"></div>
-                    <div class="delete_user">삭제</div>
-                    <div class="add_user">추가</div>
+                    <div class="submit">확인</div>
                 </div>
             </div>
+            <div class="add_user">+</div>
         </div>
         <div class="admin_setting_box display">
             <div class="setting_box">
@@ -187,7 +196,8 @@
             }
             else if (n == 1) {
                 $(this).animate({
-                    rotate: "180deg"
+                    rotate: "180deg",
+                    transform: "translate(50px,100px)"
                 }, 500)
                 $(".title").text("설정2");
             }
