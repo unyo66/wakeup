@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="wakeup:war2">
+    <output-path>$PROJECT_DIR$/out/artifacts/wakeup_war2</output-path>
+    <root id="archive" name="wakeup_war.war">
+      <element id="artifact" artifact-name="wakeup:war exploded" />
+    </root>
+  </artifact>
+</component>
